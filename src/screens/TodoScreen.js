@@ -9,27 +9,64 @@ import {
   TextInput,
   StyleSheet,
   FlatList,
-  Alert
+  Alert,
+  AsyncStorage,
+  SectionList
 } from 'react-native';
 
 class TodoScreen extends React.Component {
-  endEditingHandler = (event) => {
-    Alert.alert(event.nativeEvent.text)
+  state = {
+    todoList: [],
+    inputValue: ''
+  };
+
+   /*componentDidMount()  {
+    try {
+     /!* const value = await AsyncStorage.getItem('@Todo:list');
+      if (value !== null) {
+        this.setState({todoList: value});
+      }*!/
+      console.log('component mount: ' + this.state.todoList)
+    } catch (error) {
+      console.log('error: '+error);
+    }
+  };*/
+
+
+
+   endEditingHandler = (event) => {
+     let todoList = this.state.todoList;
+     let todoObject = {
+       id: (this.state.todoList.length+1).toString(),
+       todoText: event.nativeEvent.text
+     };
+     this._todoInput.setNativeProps({text: ''});
+
+     todoList.push(todoObject);
+     this.setState({todoList: todoList, inputValue: ''})
   };
 
   render() {
-    const {todos} = this.props;
     return (
       <View style={styles.container}>
         <Text>Todo List</Text>
         <TextInput
+          value={this.state.inputValue}
+          onChangeText={(value) => {
+              this.setState({inputValue: value});
+          }}
+          defaultValue={""}
           autoCorrect={false}
           placeholder={"add todo"}
           onEndEditing={this.endEditingHandler}
+          ref={component => {this._todoInput = component}}
+          blurOnSubmit={true}
+          clearTextOnFocus={true}
         />
         <FlatList
-          data={todos}
-          renderItem={({item}) => <Text>{item.todoText}</Text>}
+          data={this.state.todoList}
+          extraData={this.state.todoList.length}
+          renderItem={({item}) => <Text>- {item.todoText}    (x)</Text>}
           keyExtractor={(item, index) => item.id}
         />
       </View>
