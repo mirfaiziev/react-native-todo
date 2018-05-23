@@ -20,21 +20,19 @@ class TodoScreen extends React.Component {
     inputValue: ''
   };
 
-   /*componentDidMount()  {
+   async componentDidMount()  {
     try {
-     /!* const value = await AsyncStorage.getItem('@Todo:list');
+      const value = await AsyncStorage.getItem('@Todo:list');
       if (value !== null) {
-        this.setState({todoList: value});
-      }*!/
+        this.setState({todoList: JSON.parse(value)});
+      }
       console.log('component mount: ' + this.state.todoList)
     } catch (error) {
       console.log('error: '+error);
     }
-  };*/
+  };
 
-
-
-   endEditingHandler = (event) => {
+  endEditingHandler = async(event) => {
      let todoList = this.state.todoList;
      let todoObject = {
        id: (this.state.todoList.length+1).toString(),
@@ -44,6 +42,7 @@ class TodoScreen extends React.Component {
 
      todoList.push(todoObject);
      this.setState({todoList: todoList, inputValue: ''})
+     await AsyncStorage.setItem('@Todo:list', JSON.stringify(todoList))
   };
 
   render() {
@@ -55,18 +54,16 @@ class TodoScreen extends React.Component {
           onChangeText={(value) => {
               this.setState({inputValue: value});
           }}
-          defaultValue={""}
           autoCorrect={false}
           placeholder={"add todo"}
           onEndEditing={this.endEditingHandler}
           ref={component => {this._todoInput = component}}
-          blurOnSubmit={true}
           clearTextOnFocus={true}
         />
         <FlatList
           data={this.state.todoList}
           extraData={this.state.todoList.length}
-          renderItem={({item}) => <Text>- {item.todoText}    (x)</Text>}
+          renderItem={({item}) => <Text>- {item.todoText}    (v) (x)</Text>}
           keyExtractor={(item, index) => item.id}
         />
       </View>
